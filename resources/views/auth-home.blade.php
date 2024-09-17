@@ -1,6 +1,6 @@
 <x-layout.main>
-    <section class="bg-white dark:bg-gray-900">
-        <div class="max-w-screen-xl px-4 py-8 mx-auto text-center lg:py-16">
+    <section class="grid bg-white dark:bg-gray-900 place-items-center h-[80dvh]">
+        <div class="max-w-screen-xl px-4 py-8 text-center lg:py-16">
             <h1
                 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
                 Hello {{ auth()->user()->username }}! Welcome to your personal feed!</h1>

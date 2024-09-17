@@ -7,9 +7,11 @@ use App\Models\User;
 use Cocur\Slugify\Slugify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
+    private String $allowedTags = '<p><br><b><strong><del><em><i><ul><ol><li><h1><h2><h3><h4><h5><h6><blockquote><code><div><a><span><img><figure><figcaption><table><thead><tbody><th><tr><td>';
     /**
      * Display a listing of the resource.
      */
@@ -38,13 +40,16 @@ class PostController extends Controller
         ]);
 
         $validate['title'] = strip_tags($validate['title']);
-        $validate['content'] = strip_tags($validate['content']);
+        $validate['content'] = strip_tags(
+            $validate['content'],
+            allowed_tags: $this->allowedTags
+        );
         $validate['slug'] = $slugify->slugify($validate['title']);
         $validate['user_id'] = Auth::user()->id;
 
-        // Post::create($validate);
+        $newPost = Post::create($validate);
 
-        dd($validate);
+        return redirect("/post/{$newPost->slug}")->with('success', 'Your post has been created!');
     }
 
     /**
@@ -52,7 +57,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return view('show-post', ['post' => $post]);
     }
 
     /**
@@ -76,6 +81,9 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $user = Auth::user();
+        Gate::authorize('delete', $post);
+        $post->delete();
+        return redirect("/profile/{$user->username}")->with('success', 'Your post has been deleted!');
     }
 }

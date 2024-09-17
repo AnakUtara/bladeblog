@@ -1,6 +1,6 @@
 <nav class="sticky top-0 z-20 w-full bg-white border-b border-gray-200 dark:bg-gray-900 start-0 dark:border-gray-600">
     <div class="flex flex-wrap items-center justify-between max-w-screen-xl gap-5 p-4 mx-auto md:gap-10">
-        <a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
             <svg class="h-8" id="logo-73" width="100%" height="100%" viewBox="0 0 60 40" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -45,15 +45,24 @@
                     id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
                     data-dropdown-placement="bottom">
                     <span class="sr-only">Open user menu</span>
-                    <img class="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo">
+                    <div class="relative overflow-hidden bg-gray-100 rounded-full size-8 dark:bg-gray-600">
+                        <svg class="absolute text-gray-400 size-10 -left-1" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    {{-- <img class="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo"> --}}
                 </button>
                 <!-- User Dropdown menu -->
                 <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
                     id="user-dropdown">
                     <div class="px-4 py-3">
-                        <span class="block text-sm text-gray-900 dark:text-white">{{ auth()->user()->username }}</span>
-                        <span
-                            class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ auth()->user()->email }}</span>
+                        @php
+                            $user = auth()->user();
+                        @endphp
+                        <a href="/" class="block text-sm text-gray-900 dark:text-white">{{ $user->username }}</a>
+                        <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ $user->email }}</span>
                     </div>
                     <ul class="py-2" aria-labelledby="user-menu-button">
                         <li>

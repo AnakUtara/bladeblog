@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -33,10 +34,11 @@ class UserController extends Controller
         return redirect('/')->with('success', 'You have been logged out!');
     }
 
-    public function homeView()
+    public function profile(User $user)
     {
-        return Auth::check() ? view('auth-home') : view('guest-home');
+        return view('profile', ['user' => $user, 'posts' => $user->posts()->latest()->paginate(20)]);
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -59,7 +61,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = request()->validate([
-            'username' => ['required', 'min:4', Rule::unique('users', 'username')],
+            'username' => ['required', 'alpha_dash:ascii', 'min:4', Rule::unique('users', 'username')],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
@@ -76,7 +78,13 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $authUser = Auth::user();
+        $posts = Post::query()->where('user_id', $authUser->id)->get();
+        if (Auth::check()) {
+            return $posts->count() > 0 ? redirect("/profile/{$authUser->username}") : view('auth-home');
+        } else {
+            return view('guest-home');
+        }
     }
 
     /**
