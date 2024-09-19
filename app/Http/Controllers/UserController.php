@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class UserController extends Controller
 {
@@ -37,6 +40,35 @@ class UserController extends Controller
     public function profile(User $user)
     {
         return view('profile', ['user' => $user, 'posts' => $user->posts()->latest()->paginate(20)]);
+    }
+
+    public function avatarStore()
+    {
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
+        $publicStorage = Storage::disk('public');
+        request()->validate([
+            'avatar' => ['required', 'max:3072', 'image',]
+        ]);
+        //Instantiate new Intervention ImageManager and read uploaded image
+        $imgManager = new ImageManager(new Driver());
+        $upload = request()->file('avatar');
+        $filename = strtolower($user->username) . "_" . uniqid() . ".jpg";
+        $image = $imgManager->read($upload);
+        //Resize image
+        $resized = $image->cover(120, 120)->toJpeg();
+        //Delete old image
+        $oldAvatarPath = str_replace("/storage/", "", $user->avatar);
+        if ($publicStorage->exists($oldAvatarPath) && $user->avatar) {
+            $publicStorage->delete($oldAvatarPath);
+        };
+        //Save image
+        $publicStorage->put("avatars/{$filename}", $resized);
+        //Update user avatar in database
+        $user->avatar = $filename;
+        $user->save();
+        //Redirect to profile page with updated avatar and success message
+        return redirect("/profile/{$user->username}")->with('success', 'Your avatar has been updated!');
     }
 
     /**
@@ -76,12 +108,12 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show()
     {
         $authUser = Auth::user();
-        $posts = Post::query()->where('user_id', $authUser->id)->get();
+        $posts = $authUser ? Post::query()->where('user_id', $authUser->id)->get() : [];
         if (Auth::check()) {
-            return $posts->count() > 0 ? redirect("/profile/{$authUser->username}") : view('auth-home');
+            return $authUser && $posts->count() > 0 ? redirect("/profile/{$authUser->username}") : view('auth-home');
         } else {
             return view('guest-home');
         }

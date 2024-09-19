@@ -7,8 +7,10 @@
     "require": {
         "php": "^8.2",
         "cocur/slugify": "^4.6",
+        "intervention/image": "^3.8",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "snortlin/nano-id": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

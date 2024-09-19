@@ -9,7 +9,7 @@
                     Discover a world of interesting articles, thought-provoking ideas, and practical advice on a wide
                     range of topics. From current events to personal development, we've got something for everyone.</p>
             </div>
-            <form action="/register" method="POST" class="w-full max-w-lg lg:col-span-5">
+            <form action="/register" method="POST" class="w-full lg:col-span-5">
                 @csrf
                 <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Create an account</h2>
                 <x-form.ui.v-input-text name="username" label="Name" type="text"
