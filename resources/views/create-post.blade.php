@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.main title="Create New Post">
     <form action="/post" method="POST" class="container w-full px-4 py-8 mx-auto">
         @csrf
         <h1 class="mb-4 text-2xl font-bold">Create New Post</h1>

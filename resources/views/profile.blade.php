@@ -3,8 +3,7 @@
     $auth = auth();
 @endphp
 
-
-<x-layout.main>
+<x-layout.main title="{{ $user->username }}'s Profile">
     <div class="container w-full px-4 py-8 mx-auto">
         <div class="flex items-center gap-5 mb-2 text-gray-900 dark:text-white">
             <div class="relative overflow-hidden bg-gray-100 rounded-full size-12 dark:bg-gray-600">
@@ -57,7 +56,7 @@
                                     <!-- Modal body -->
                                     <form class="p-4 md:p-5" action="/avatar" method="POST" enctype="multipart/form-data">
                                         @csrf
-                                        <div x-data="{ src: 'https://placehold.co/400x400?font=roboto' }" class="flex flex-col items-center gap-4 mb-4">
+                                        <div x-data="{ src: 'https://placehold.co/120x120?font=roboto' }" class="flex flex-col items-center gap-4 mb-4">
                                             <div>
                                                 <img x-bind:src="src" alt="{{ $user->username }}'s Avatar"
                                                     class="object-cover rounded-full size-32 aspect-square">
@@ -90,15 +89,16 @@
                         </div>
                     @endif
                     @if ($auth->user()->id != $user->id)
-                        <form action="" method="post" enctype="multipart/form-data">
+                        <form action="/user/{{ $user->id }}/{{ $isFollowing ? 'unfollow' : 'follow' }}" method="post">
                             @csrf
                             <button type="submit"
-                                class="w-full px-5 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Follow</button>
+                                class="w-full px-5 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">{{ $isFollowing ? 'Unfollow' : 'Follow' }}</button>
                         </form>
                     @endif
                 </div>
             @endauth
         </div>
+        <!-- Tabs -->
         <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-styled-tab"
                 data-tabs-toggle="#default-styled-tab-content"
@@ -106,22 +106,27 @@
                 data-tabs-inactive-classes="dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300"
                 role="tablist">
                 <li class="me-2" role="presentation">
-                    <button class="inline-block p-4 border-b-2 rounded-t-lg" id="profile-styled-tab"
-                        data-tabs-target="#styled-profile" type="button" role="tab" aria-controls="profile"
-                        aria-selected="false">{{ $postsCount > 1 ? 'Posts' : 'Post' }}
+                    <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                        id="profile-styled-tab" data-tabs-target="#styled-profile" type="button" role="tab"
+                        aria-controls="profile" aria-selected="false">{{ $postsCount > 1 ? 'Posts' : 'Post' }}
                         {{ $postsCount > 0 ? ": $postsCount" : '' }}</button>
                 </li>
                 <li class="me-2" role="presentation">
                     <button
                         class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                         id="dashboard-styled-tab" data-tabs-target="#styled-dashboard" type="button" role="tab"
-                        aria-controls="dashboard" aria-selected="false">Followers</button>
+                        aria-controls="dashboard"
+                        aria-selected="false">{{ $followersCount > 1 ? 'Followers' : 'Follower' }}
+                        {{ $followersCount > 0 ? ": $followersCount" : '' }}</button>
                 </li>
-                <li class="me-2" role="presentation">
+                <li role="presentation">
                     <button
                         class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                         id="settings-styled-tab" data-tabs-target="#styled-settings" type="button" role="tab"
-                        aria-controls="settings" aria-selected="false">Following</button>
+                        aria-controls="settings"
+                        aria-selected="false">{{ $followingCount > 1 ? 'Following' : 'Following' }}
+                        {{ $followingCount > 0 ? ": $followingCount" : '' }}</button>
                 </li>
             </ul>
         </div>
@@ -129,49 +134,23 @@
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="styled-profile" role="tabpanel"
                 aria-labelledby="profile-tab">
                 <!-- Posts -->
-                @forelse ($posts as $post)
-                    <div
-                        class="w-full p-6 mb-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                        <a href="/post/{{ $post->slug }}">
-                            <h5 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                {{ $post->title }}</h5>
-                        </a>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $post->created_at->diffForHumans() }}
-                        </p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Created at
-                            {{ $post->created_at->format('l, F j Y') }}</p>
-                        <div class="mb-3 overflow-hidden shadow-[inset_0px_-2px_4px_0px_rgb(0,0,0,0.05)] h-44">
-                            <div class="trix-editor">
-                                {!! $post->content !!}
-                            </div>
-                        </div>
-                        <x-ui.link-btn href="/post/{{ $post->slug }}" />
-                        @can('update', $post)
-                            <x-ui.link-btn href="/post/{{ $post->slug }}/edit" :icon="false" label="Edit" />
-                            <x-ui.modal-btn />
-                            <x-ui.modal action="/post/{{ $post->id }}" />
-                        @endcan
-                    </div>
-                    <div>
-                        {{ $posts->links() }}
-                    </div>
-                @empty
-                    <p class="text-sm text-gray-500 dark:text-gray-400">You haven't made any posts yet...</p>
-                @endforelse
+                <x-ui.post-list :$posts />
             </div>
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="styled-dashboard" role="tabpanel"
                 aria-labelledby="dashboard-tab">
-                <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong
-                        class="font-medium text-gray-800 dark:text-white">Dashboard tab's associated content</strong>.
-                    Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps
-                    classes to control the content visibility and styling.</p>
+                <x-ui.follow-tab :datas="$followers" access="follower">
+                    <x-slot:pagination>
+                        {{ $followers->links() }}
+                    </x-slot:pagination>
+                </x-ui.follow-tab>
             </div>
             <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="styled-settings" role="tabpanel"
                 aria-labelledby="settings-tab">
-                <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong
-                        class="font-medium text-gray-800 dark:text-white">Settings tab's associated content</strong>.
-                    Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps
-                    classes to control the content visibility and styling.</p>
+                <x-ui.follow-tab :datas="$followings" access="following">
+                    <x-slot:pagination>
+                        {{ $followings->links() }}
+                    </x-slot:pagination>
+                </x-ui.follow-tab>
             </div>
         </div>
     </div>

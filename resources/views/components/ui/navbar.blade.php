@@ -18,21 +18,47 @@
         </a>
         @auth
             <!--User Menu-->
-            <div class="flex">
-                <div class="relative hidden w-96 max-w-96 md:block">
-                    <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
-                        <svg class="text-gray-500 size-4 dark:text-gray-400" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
-                        <span class="sr-only">Search icon</span>
+            <div x-data="{ results: [], term: '' }" x-effect="results = await liveSearch(term)" class="relative">
+                <div class="flex">
+                    <div class="relative hidden w-96 max-w-96 md:block">
+                        <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                            <svg class="text-gray-500 size-4 dark:text-gray-400" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                            <span class="sr-only">Search icon</span>
+                        </div>
+                        <input x-model="term" @change.debounce="term = $event.target.value" type="text"
+                            id="search-navbar"
+                            class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg grow ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Search...">
                     </div>
-                    <input type="text" id="search-navbar"
-                        class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg grow ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Search...">
+                </div>
+                <div x-show="term.length" x-transition
+                    class="absolute hidden w-full px-4 bg-white border border-gray-200 rounded-lg shadow md:block dark:bg-gray-800 dark:border-gray-700">
+                    <div class="flow-root">
+                        <ul role="list" class="list-none divide-y divide-gray-200 dark:divide-gray-700">
+                            <template x-for="result in results" hidden>
+                                <li class="py-3 sm:py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 min-w-0 ms-4">
+                                            <a :href="'/post/' + result.slug" x-text="result.title"
+                                                class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                            </a>
+                                            <a :href="'/profile/' + result.user.username"
+                                                x-text="'| Author: ' + result.user.username"
+                                                class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            <!--Toggle Mobile Search-->
             <div class="flex items-center space-x-3 md:order-2 md:space-x-0 rtl:space-x-reverse">
                 <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search"
                     aria-expanded="false"
@@ -65,7 +91,7 @@
                 <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
                     id="user-dropdown">
                     <div class="px-4 py-3">
-                        <a href="/"
+                        <a href="/profile/{{ $user->username }}"
                             class="block font-bold text-gray-900 text-md dark:text-white">{{ $user->username }}</a>
                         <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ $user->email }}</span>
                     </div>
@@ -90,23 +116,48 @@
                     </ul>
                 </div>
             </div>
-            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-search">
-                <div class="relative md:hidden">
-                    <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
+            <div x-data="{ results: [], term: '' }" x-effect="results = await liveSearch(term)"
+                class="relative hidden w-full md:hidden" id="navbar-search">
+                <div class="items-center justify-between w-full header-search-icon md:flex md:w-auto md:order-1">
+                    <div class="relative md:hidden">
+                        <div class="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
+                        <input x-model="term" @change.debounce="term = $event.target.value" type="text"
+                            id="search-navbar"
+                            class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Search...">
                     </div>
-                    <input type="text" id="search-navbar"
-                        class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg ps-10 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Search...">
+                </div>
+                <div x-show="term.length" x-transition
+                    class="absolute w-full px-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+                    <div class="flow-root">
+                        <ul role="list" class="list-none divide-y divide-gray-200 dark:divide-gray-700">
+                            <template x-for="result in results" hidden>
+                                <li class="py-3 sm:py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-1 min-w-0 ms-4">
+                                            <a :href="'/post/' + result.slug" x-text="result.title"
+                                                class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                            </a>
+                                            <a :href="'/profile/' + result.user.username"
+                                                x-text="'| Author: ' + result.user.username"
+                                                class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-    @else
-        <x-form.sign-in />
-    @endauth
+        @else
+            <x-form.sign-in />
+        @endauth
     </div>
 </nav>

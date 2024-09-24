@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Models\Post;
@@ -22,6 +23,9 @@ Route::middleware('auth')->group(function () {
     //User
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/avatar', [UserController::class, 'avatarStore']);
+    //User Follows/Unfollows
+    Route::post('/user/{user}/follow', [FollowController::class, 'create']);
+    Route::post('/user/{user}/unfollow', [FollowController::class, 'destroy']);
     //Post
     Route::post('/post', [PostController::class, 'store']);
     Route::view('/post/create', 'create-post');
@@ -31,6 +35,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/post/{post:slug}/edit', [PostController::class, 'edit']);
     });
     Route::delete('/post/{post}', [PostController::class, 'destroy'])->can('delete', 'post');
+    Route::get('/search', [PostController::class, 'search']);
 });
 
 //Conditional view rendered Route

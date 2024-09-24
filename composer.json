@@ -9,10 +9,12 @@
         "cocur/slugify": "^4.6",
         "intervention/image": "^3.8",
         "laravel/framework": "^11.9",
+        "laravel/scout": "^10.11",
         "laravel/tinker": "^2.9",
         "snortlin/nano-id": "^1.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.14",
         "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",

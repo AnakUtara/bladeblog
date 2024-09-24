@@ -97,4 +97,11 @@ class PostController extends Controller
         $post->delete();
         return redirect("/profile/{$user->username}")->with('success', 'Your post has been deleted!');
     }
+
+    public function search()
+    {
+        $posts = Post::search(request()->query('search'))->get();
+        $posts->load('user:id,username,avatar,email')->take(7);
+        return $posts;
+    }
 }

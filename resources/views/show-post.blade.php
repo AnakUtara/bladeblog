@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.main :title="$post->title">
     <div class="container w-full px-4 py-8 mx-auto">
         <div class="flex items-center justify-between">
             <h1 class="mb-2 text-4xl font-extrabold ">{{ $post->title }}</h1>
@@ -24,8 +24,9 @@
                     </svg>
                 @endisset
             </a>
-            <a href="/profile/{{ strtolower($post->user->username) }}">{{ $post->user->username }}</a>, posted
-            {{ $post->created_at->diffForHumans() }}
+            <a class="font-bold"
+                href="/profile/{{ strtolower($post->user->username) }}">{{ $post->user->username }}</a>, posted
+            {{ $post->created_at->diffForHumans() }}, at {{ $post->created_at->format('l, F j, Y') }}
         </div>
         <div class="trix-editor">
             {!! $post->content !!}

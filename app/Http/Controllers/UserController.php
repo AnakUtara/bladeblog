@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Follow;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,7 +40,22 @@ class UserController extends Controller
 
     public function profile(User $user)
     {
-        return view('profile', ['user' => $user, 'posts' => $user->posts()->latest()->paginate(20)]);
+        $follow = new Follow();
+        $data = [
+            'user' => $user,
+            'followersCount' => $user->followers()->count(),
+            'followingCount' => $user->following()->count(),
+            'followers' => $follow->with('follower', 'following')->where('following_id', $user->id)->latest()->paginate(10),
+            'followings' => $follow->with('follower', 'following')->where('user_id', $user->id)->latest()->paginate(10),
+            'posts' => Post::where('user_id', $user->id)->with('user')->latest()->paginate(20),
+        ];
+        if (Auth::check()) {
+            $data['isFollowing'] = $follow->where([
+                ['user_id', '=', Auth::user()->id],
+                ['following_id', '=', $user->id]
+            ])->exists();
+        }
+        return view('profile', $data);
     }
 
     public function avatarStore()
@@ -48,7 +64,7 @@ class UserController extends Controller
         $user = Auth::user();
         $publicStorage = Storage::disk('public');
         request()->validate([
-            'avatar' => ['required', 'max:3072', 'image',]
+            'avatar' => ['required', 'max:3072', 'extensions:jpg,png',]
         ]);
         //Instantiate new Intervention ImageManager and read uploaded image
         $imgManager = new ImageManager(new Driver());
@@ -59,7 +75,7 @@ class UserController extends Controller
         $resized = $image->cover(120, 120)->toJpeg();
         //Delete old image
         $oldAvatarPath = str_replace("/storage/", "", $user->avatar);
-        if ($publicStorage->exists($oldAvatarPath) && $user->avatar) {
+        if ($publicStorage->exists($oldAvatarPath . "/" . $user->avatar) && $user->avatar) {
             $publicStorage->delete($oldAvatarPath);
         };
         //Save image
@@ -110,10 +126,12 @@ class UserController extends Controller
      */
     public function show()
     {
-        $authUser = Auth::user();
-        $posts = $authUser ? Post::query()->where('user_id', $authUser->id)->get() : [];
+        /** @var \App\Models\User $user **/
+        $user = Auth::user();
         if (Auth::check()) {
-            return $authUser && $posts->count() > 0 ? redirect("/profile/{$authUser->username}") : view('auth-home');
+            return view('auth-home', [
+                'posts' => $user->feedPosts()->latest()->paginate(10),
+            ]);
         } else {
             return view('guest-home');
         }
@@ -141,5 +159,10 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function search(string $search)
+    {
+        return User::search($search)->get();
     }
 }

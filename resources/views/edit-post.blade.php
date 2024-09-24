@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.main title="Edit {{ $post->title }}">
     <form action="/post/{{ $post->id }}" method="POST" class="container w-full px-4 py-8 mx-auto">
         @csrf
         @method('PATCH')
