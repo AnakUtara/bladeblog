@@ -102,8 +102,8 @@
                                 Post</a>
                         </li>
                         <li>
-                            <a href="#"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Chat</a>
+                            <a href="#" data-toggle="tooltip" data-placement="bottom"
+                                class="block px-4 py-2 text-sm text-gray-700 header-chat-icon hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Chat</a>
                         </li>
                         <li>
                             <form method="POST" action="/logout"

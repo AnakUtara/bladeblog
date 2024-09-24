@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ExampleEvent;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\User;

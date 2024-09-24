@@ -55,3 +55,129 @@
     margin-left: 0.3em;
     padding-left: 0.6em;
 }
+
+/* Chat */
+.chat-wrapper {
+    position: fixed;
+    z-index: 5;
+    bottom: 0;
+    right: 20px;
+    width: 290px;
+    height: 350px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+.chat-wrapper--ready {
+    transition: all 0.4s ease-in-out;
+}
+
+.chat--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.chat-title-bar {
+    background-color: #292929;
+    color: #fff;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.chat-title-bar-close {
+    cursor: pointer;
+    fill: white;
+}
+
+.chat-title-bar-close:hover {
+    opacity: 1;
+}
+
+.chat-log {
+    padding: 8px;
+    flex: 1;
+    overflow: auto;
+    border-bottom: 0.5px solid #7e7e7e;
+}
+
+.chat-self,
+.chat-other {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 7px;
+}
+
+.chat-self {
+    padding-left: 25%;
+}
+
+.chat-self .chat-avatar {
+    margin-left: 6px;
+}
+
+.chat-self .chat-message {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.chat-self .chat-message-inner {
+    text-align: right;
+    padding: 4px 7px;
+    border-radius: 12px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 11pt;
+}
+
+.chat-other {
+    padding-right: 25%;
+}
+
+.avatar-tiny {
+    width: 48px;
+    height: 48px;
+    border-radius: 100%;
+    margin-right: 4px;
+    position: relative;
+    top: -1px;
+}
+
+.chat-other .chat-avatar {
+    margin-right: 6px;
+}
+
+.chat-other .chat-message {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.chat-other .chat-message-inner {
+    padding: 4px 7px;
+    border-radius: 12px;
+    background-color: #f1f0f0;
+    font-size: 11pt;
+}
+
+.chat-message a {
+    color: #212529;
+}
+
+.chat-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 7px;
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+}

@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\FollowController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\UserController;
 use App\Models\Post;
 use App\Models\User;
+use App\Events\ChatMessage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\FollowController;
 
 //Admin Only Route
 Route::get('/admin', fn() => 'You are admin!')->can('visit_admin_pages');
@@ -36,6 +36,22 @@ Route::middleware('auth')->group(function () {
     });
     Route::delete('/post/{post}', [PostController::class, 'destroy'])->can('delete', 'post');
     Route::get('/search', [PostController::class, 'search']);
+    //Chat Routes
+    Route::post('/send-chat', function () {
+        $chat = request()->validate([
+            'message' => ['required', 'string', 'max:500'],
+        ]);
+        $strippedChat = strip_tags($chat['message']);
+        if (!trim($strippedChat)) {
+            return response()->noContent();
+        }
+        broadcast(new ChatMessage([
+            'username' => Auth::user()->username,
+            'message' => strip_tags(request()->message),
+            'avatar' => Auth::user()->avatar
+        ]))->toOthers();
+        return response()->noContent();
+    });
 });
 
 //Conditional view rendered Route
