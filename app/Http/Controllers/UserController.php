@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ExampleEvent;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\User;
@@ -77,7 +76,7 @@ class UserController extends Controller
         $resized = $image->cover(120, 120)->toJpeg();
         //Delete old image
         $oldAvatarPath = str_replace("/storage/", "", $user->avatar);
-        if ($publicStorage->exists($oldAvatarPath . "/" . $user->avatar) && $user->avatar) {
+        if ($publicStorage->exists($oldAvatarPath) && $user->avatar) {
             $publicStorage->delete($oldAvatarPath);
         };
         //Save image
