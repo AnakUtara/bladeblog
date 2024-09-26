@@ -33,6 +33,9 @@
                     Latest Posts From People You Follow:</h1>
                 <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
                     <x-ui.post-list :$posts :author="true" />
+                    <div>
+                        {{ $posts->links() }}
+                    </div>
                 </div>
             </div>
         </section>

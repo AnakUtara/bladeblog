@@ -45,9 +45,6 @@
             <x-ui.modal action="/post/{{ $post->id }}" />
         @endcan
     </div>
-    <div>
-        {{ $posts->links() }}
-    </div>
 @empty
     <p class="text-sm text-gray-500 dark:text-gray-400">You haven't made any posts yet...</p>
 @endforelse

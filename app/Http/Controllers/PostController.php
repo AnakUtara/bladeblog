@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Mail\NewPostEmail;
 use Cocur\Slugify\Slugify;
+use Snortlin\NanoId\NanoId;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Snortlin\NanoId\NanoId;
+use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -47,6 +49,12 @@ class PostController extends Controller
         $validate['user_id'] = Auth::user()->id;
 
         $newPost = Post::create($validate);
+
+        Mail::to(Auth::user()->email)->send(new NewPostEmail([
+            'title' => $newPost->title,
+            'slug' => $newPost->slug,
+            'username' => Auth::user()->username
+        ]));
 
         return redirect("/post/{$newPost->slug}")->with('success', 'Your post has been created!');
     }
@@ -100,7 +108,7 @@ class PostController extends Controller
 
     public function search()
     {
-        $posts = Post::search(request()->query('search'))->get();
+        $posts = Post::search(request()->query('search'))->latest()->get();
         $posts->load('user:id,username,avatar,email')->take(7);
         return $posts;
     }

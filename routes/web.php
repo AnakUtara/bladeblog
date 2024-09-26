@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FollowController;
+use App\Mail\NewPostEmail;
+use App\Mail\RecapMail;
 
 //Admin Only Route
 Route::get('/admin', fn() => 'You are admin!')->can('visit_admin_pages');
@@ -60,3 +62,14 @@ Route::get('/', [UserController::class, 'show'])->name('login');
 //Unprotected Routes
 Route::get('/profile/{user:username}', [UserController::class, 'profile']);
 Route::get('/post/{post:slug}', [PostController::class, 'show']);
+
+//Preview mail route
+Route::get('/mail', function () {
+    $user = User::find(1);
+    return new RecapMail([
+        'username' => $user->username,
+        'postCount' => $user->posts->count(),
+        'followersCount' => $user->followers->count(),
+        'followingsCount' => $user->following->count(),
+    ]);
+});

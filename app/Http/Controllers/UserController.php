@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -42,14 +43,14 @@ class UserController extends Controller
     public function profile(User $user)
     {
         $follow = new Follow();
-        $data = [
+        $data = Cache::flexible('profile', [10, 20], fn() => [
             'user' => $user,
             'followersCount' => $user->followers()->count(),
             'followingCount' => $user->following()->count(),
             'followers' => $follow->with('follower', 'following')->where('following_id', $user->id)->latest()->paginate(10),
             'followings' => $follow->with('follower', 'following')->where('user_id', $user->id)->latest()->paginate(10),
             'posts' => Post::where('user_id', $user->id)->with('user')->latest()->paginate(20),
-        ];
+        ]);
         if (Auth::check()) {
             $data['isFollowing'] = $follow->where([
                 ['user_id', '=', Auth::user()->id],
@@ -131,7 +132,7 @@ class UserController extends Controller
         $user = Auth::user();
         if (Auth::check()) {
             return view('auth-home', [
-                'posts' => $user->feedPosts()->latest()->paginate(10),
+                'posts' => Cache::flexible('feed-posts', [10, 20], fn() => $user->feedPosts()->latest()->paginate(10)),
             ]);
         } else {
             return view('guest-home');
